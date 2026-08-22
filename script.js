@@ -31,7 +31,7 @@ function renderError(cardElement, message, retryCallBack) {
 }
 
 async function featchCurrencies() {
-    const currencyCard = document.getElementById('.currency-card');
+    const currencyCard = document.getElementById('currency-card');
 
     try {
         renderLoading(currencyCard);
@@ -42,7 +42,7 @@ async function featchCurrencies() {
             throw new Error(`Falha na resposta do servidor (Status: ${response.status}`);
         }
 
-        const data = response.json();
+        const data = await response.json();
         renderCurrencyData(currencyCard, data);
     } catch (error) {
         console.error('Erro em fetchCurrencies: ', error.message);
@@ -68,11 +68,11 @@ async function renderCurrencyData(cardElement, data) {
     contentArea.innerHTML = `
         <div>
             <span>🇺🇸 Dólar (${usd.code})</span>
-            <span class="data-value">${usd.value}</span>
+            <span class="data-value">${usdValue}</span>
         </div>
         <div>
             <span>🇪🇺 Euro (${eur.code})</span>
-            <span class="data-value">${eur.value}</span>
+            <span class="data-value">${eurValue}</span>
         </div>
     `
 }
@@ -126,3 +126,35 @@ function renderWeatherData(cardElement, data) {
         </div>
     `
 }
+
+async function initDashboard() {
+    const refreshBtn = document.getElementById('btn-refresh');
+
+    try {
+        if(refreshBtn) {
+            refreshBtn.disabled = true;
+            refreshBtn.textContent = '⏳ Carregando...';
+        }
+
+        await Promise.all([
+            featchCurrencies(),
+            fetchWeather()
+        ])
+    } catch (error) {
+        console.error('Erro geral durante a atualização do Dashboard:', error);
+    } finally {
+        if(refreshBtn) {
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '&#8635; Atualizar'
+        }
+    }
+}
+
+const refreshBtn = document.getElementById('btn-refresh');
+if(refreshBtn) {
+    refreshBtn.addEventListener('click', ()=> {
+        initDashboard();
+    })
+}
+
+initDashboard();
