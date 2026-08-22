@@ -1,13 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css" >
-    <title>Document</title>
+    <title>Realtime Dashboard</title>
 </head>
 <body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div>
+                <h1>Dashboard: Financeiro & Clima</h1>
+                <p>Dados obtidos em tempo real via APIs públicas</p>
+            </div>
+            <button id="btn-refresh" class="btn-refresh" title="Atualizar dados">&#8635; Atualizar</button>
+        </header>
+        
+        <main class="cards-grid">
+            <section id="currency-card" class="card">
+                <h2 class="card-title">Cotações de Moedas</h2>
+                <div class="card-content"></div>
+            </section>
     
+            <section id="weather-card" class="card">
+                <h2 class="card-title">Cotações de Moedas</h2>
+                <div class="card-content"></div>
+            </section>
+        </main>
+    </div>
+
 
     <script src="script.js"></script>
 </body>
