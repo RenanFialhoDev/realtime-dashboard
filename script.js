@@ -29,3 +29,50 @@ function renderError(cardElement, message, retryCallBack) {
         }, {once: true}); // '{once: true}' remove o ouvinte após ser clicado uma vez
     }
 }
+
+async function featchCurrencies() {
+    const currencyCard = document.getElementById('.currency-card');
+
+    try {
+        renderLoading(currencyCard);
+
+        const response = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL');
+
+        if(!response.ok) {
+            throw new Error(`Falha na resposta do servidor (Status: ${response.status}`);
+        }
+
+        const data = response.json();
+        renderCurrencyData(currencyCard, data);
+    } catch (error) {
+        console.error('Erro em fetchCurrencies: ', error.message);
+        renderError(
+            currencyCard,
+            'Não foi possível obter as cotações financeiras.',
+            featchCurrencies
+        );
+    }
+}
+
+async function renderCurrencyData(cardElement, data) {
+    const contentArea = cardElement.querySelector('.card-content');
+    if(!contentArea) return;
+
+    const usd = data.USDBRL;
+    const eur = data.EURBRL;
+
+    const usdValue = Number(usd.bid).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+    const eurValue = Number(eur.bid).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+    // injeta o HTML formatado na tela
+    contentArea.innerHTML = `
+        <div>
+            <span>🇺🇸 Dólar (${usd.code})</span>
+            <span class="data-value">${usd.value}</span>
+        </div>
+        <div>
+            <span>🇪🇺 Euro (${eur.code})</span>
+            <span class="data-value">${eur.value}</span>
+        </div>
+    `
+}
