@@ -139,3 +139,20 @@ body {
     background: var(--danger);
     color: white;
 }
+
+.data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.data-row:last-child {
+    border-bottom: none;
+}
+
+.data-value {
+    font-weight: 700;
+    color: var(--primary);
+}
