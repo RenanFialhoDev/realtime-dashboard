@@ -76,3 +76,53 @@ async function renderCurrencyData(cardElement, data) {
         </div>
     `
 }
+
+async function fetchWeather() {
+    const weatherCard = document.getElementById('weather-card');
+
+    const lat = -23.5505;
+    const lon = -46.6333;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+
+    try {
+        renderLoading(weatherCard);
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`Erro ao conectar com Open-Meteo (Status: ${response.status})`);
+        }
+
+        const data = await response.json();
+        renderWeatherData(weatherCard, data);
+
+    } catch (error) {
+        console.error('Erro em fetchWeather()', error.message);
+        renderError(
+            weatherCard,
+            'Não foi possível obter a previsão do tempo.',
+            fetchWeather
+        );
+    }
+}
+
+function renderWeatherData(cardElement, data) {
+    const contentArea = cardElement.querySelector('.card-content');
+    if(!contentArea) return;
+
+    const {temperature, windspeed} = data.current_weather;
+
+    contentArea.innerHTML = `
+        <div class="data-row">
+            <span>📍Localização</span>
+            <span class="data-value">São Paulo, BR</span>
+        </div>
+        <div class="data-row">
+            <span>🌡️Temperatura</span>
+            <span class="data-value">${temperature}˚C</span>
+        </div>
+        <div class="data-row">
+            <span>💨Vento</span>
+            <span class="data-value">${windspeed}</span>
+        </div>
+    `
+}
