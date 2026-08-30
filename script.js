@@ -30,6 +30,16 @@ function renderError(cardElement, message, retryCallBack) {
     }
 }
 
+function debounce(func, delay = 500) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            func.apply(this, args);
+        }, delay)
+    }
+}
+
 async function featchCurrencies() {
     const currencyCard = document.getElementById('currency-card');
 
@@ -77,15 +87,16 @@ async function renderCurrencyData(cardElement, data) {
     `
 }
 
-async function fetchWeather() {
+async function fetchWeather(cityName = 'São Paulo') {
     const weatherCard = document.getElementById('weather-card');
 
-    const lat = -23.5505;
-    const lon = -46.6333;
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
-
+    
     try {
         renderLoading(weatherCard);
+        
+        const location = await searchCityGeo(cityName);
+
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&current_weather=true`;
         const response = await fetch(url);
 
         if (!response.ok) {
@@ -93,7 +104,10 @@ async function fetchWeather() {
         }
 
         const data = await response.json();
-        renderWeatherData(weatherCard, data);
+        renderWeatherData(weatherCard, {
+            ...data,
+            cityName: `${location.name}, ${location.country}`
+            });
 
     } catch (error) {
         console.error('Erro em fetchWeather()', error.message);
@@ -105,16 +119,35 @@ async function fetchWeather() {
     }
 }
 
+async function searchCityGeo(cityName) {
+    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=pt`;
+
+    const response = await fetch(url);
+    
+    if(!response.ok) throw new Error('Falha ao buscar localização');
+
+    const data = await response.json();
+
+    if (!data.results || data.results.length === 0) throw new Error('Cidade não encontrada!');
+
+    return {
+        name: data.results[0].name,
+        country: data.results[0].country_code,
+        lat: data.results[0].latitude,
+        lon: data.results[0].longitude
+    }
+}
+
 function renderWeatherData(cardElement, data) {
     const contentArea = cardElement.querySelector('.card-content');
     if(!contentArea) return;
-
+    console.log(data)
     const {temperature, windspeed} = data.current_weather;
 
     contentArea.innerHTML = `
         <div class="data-row">
             <span>📍Localização</span>
-            <span class="data-value">São Paulo, BR</span>
+            <span class="data-value">${data.cityName}</span>
         </div>
         <div class="data-row">
             <span>🌡️Temperatura</span>
@@ -155,6 +188,19 @@ if(refreshBtn) {
     refreshBtn.addEventListener('click', ()=> {
         initDashboard();
     })
+}
+
+const cityInput = document.getElementById('city-search');
+
+if (cityInput) {
+    const handleSearch = debounce((event) => {
+        const query = event.target.value.trim();
+        if (query.length > 3) {
+            fetchWeather(query);
+        }
+    }, 500);
+
+    cityInput.addEventListener('input', handleSearch);
 }
 
 initDashboard();
