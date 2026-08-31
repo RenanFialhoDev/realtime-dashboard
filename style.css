@@ -156,3 +156,23 @@ body {
     font-weight: 700;
     color: var(--primary);
 }
+
+.search-box {
+    margin-bottom: 12px;
+}
+
+.input-search {
+    width: 100%;
+    font-weight: 300;
+    height: 28px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    padding: 0 8px;
+    color: var(--text-main);
+    font-size: 0.875rem;
+}
+
+.input-search:focus {
+    border: 1px solid var(--border-color);
+    outline: none;
+}
