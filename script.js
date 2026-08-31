@@ -123,7 +123,7 @@ async function searchCityGeo(cityName) {
     const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=pt`;
 
     const response = await fetch(url);
-    
+
     if(!response.ok) throw new Error('Falha ao buscar localização');
 
     const data = await response.json();
@@ -141,7 +141,7 @@ async function searchCityGeo(cityName) {
 function renderWeatherData(cardElement, data) {
     const contentArea = cardElement.querySelector('.card-content');
     if(!contentArea) return;
-    console.log(data)
+
     const {temperature, windspeed} = data.current_weather;
 
     contentArea.innerHTML = `
@@ -162,6 +162,7 @@ function renderWeatherData(cardElement, data) {
 
 async function initDashboard() {
     const refreshBtn = document.getElementById('btn-refresh');
+    cityInput.value = '';
 
     try {
         if(refreshBtn) {
@@ -184,13 +185,13 @@ async function initDashboard() {
 }
 
 const refreshBtn = document.getElementById('btn-refresh');
+const cityInput = document.getElementById('city-search');
+
 if(refreshBtn) {
     refreshBtn.addEventListener('click', ()=> {
         initDashboard();
-    })
+    });
 }
-
-const cityInput = document.getElementById('city-search');
 
 if (cityInput) {
     const handleSearch = debounce((event) => {
